@@ -4,8 +4,6 @@ function px_classify_image(classifier, imagename)
 % imagename: the file name of the image to be classified
 % classifier: the file name (.mat) containing the classifier
 
-
-
 if nargin == 0
     close all
 imagename = '/srv/backup/jobb/Tissue-smFISH/ieg728/20x/max_dapi_001.tiff';
@@ -25,6 +23,7 @@ overlap = 52;
 tiles = tiles_generate_tiling(size(I), tilesize, overlap);
 C = 0*I;
 figure, imagesc(C), axis image, drawnow
+fprintf('\n');
 for kk = 1:numel(tiles)
     progressbar(kk, numel(tiles));
     C = classify_tile(Mdl, tiles{kk}, I, C);
@@ -32,7 +31,7 @@ for kk = 1:numel(tiles)
     drawnow
 end
 
-df_writeTif(C, sprintf('%s.classes.tif', imagename));
+imwrite(C, sprintf('%s.classes.png', imagename));
 
 end
 
