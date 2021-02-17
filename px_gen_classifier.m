@@ -2,12 +2,13 @@
 % with a label image where 0=unlabelled
 image = '/srv/backup/jobb/Tissue-smFISH/ieg728/20x/max_dapi_001.tiff';
 labels = '/srv/backup/jobb/Tissue-smFISH/ieg728/20x/max_dapi_001_Labels_.png';
+outname = 'classifier_001.mat';
 
 I = df_readTif(image);
 L = imread(labels);
 
 %% Calculate Features
-[F, Fnames] = features(I);
+[F, Fnames] = px_features_2d(I);
 %volumeSlide(F)
 
 %% Extract the training data from the image
@@ -20,6 +21,9 @@ Labels = double(L(pos));
 %% Configure and create the classifier
 nTrees = 50;
 Mdl = TreeBagger(nTrees, Training, Labels, 'Method', 'classification');
+fprintf('Saving classifier to %s\n', outname);
+save(outname, 'Mdl')
+
 % Classify the training data to see that all is fine
 classification = Mdl.predict(Training);
 class = cellfun(@(x) str2num(x), classification);
@@ -54,7 +58,7 @@ imwrite(rgbImage, 'pixelClassifier2_edge.png')
 
 %% Clean up classification
 nuclei = (class == 2);
-nuclei2 = bwpropfilt(nuclei, 'Area', [81, 100*100]);
+nuclei2 = bwpropfilt(nuclei, 'Area', [81, 1000*1000]);
 nuclei3 = imfill(nuclei2, 'holes');
 
 d = bwdist(~nuclei3);
