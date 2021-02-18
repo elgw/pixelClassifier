@@ -1,7 +1,7 @@
+function px_gen_classifier(image, labels, outname)
 % Pixel classification of a 2D image
 % with a label image where 0=unlabelled
 
-function px_gen_classifier(image, labels, outname)
 I = df_readTif(image);
 L = imread(labels);
 
@@ -25,6 +25,8 @@ save(outname, 'Mdl')
 % Classify the training data to see that all is fine
 classification = Mdl.predict(Training);
 class = cellfun(@(x) str2num(x), classification);
+
+
 fprintf('%.0f / %.0f training pixels classified correctly\n', sum(Labels==class), numel(Labels));
 end
 

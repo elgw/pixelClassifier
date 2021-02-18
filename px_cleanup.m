@@ -11,6 +11,8 @@ class = imread(classname);
 %% Clean up classification
 nuclei = (class == 2);
 nuclei2 = bwpropfilt(nuclei, 'Area', [81, 1000*1000]);
+
+% TODO: Only accept holes up to a certain size
 nuclei3 = imfill(nuclei2, 'holes');
 
 d = bwdist(~nuclei3);
