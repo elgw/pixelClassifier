@@ -5,23 +5,22 @@ load(MdlFile)
 % Purpose:
 % Create c-code from a TreeBagger model
 
-fid = fopen('trees.c', 'w');
-
 trees = Mdl.Trees;
 ntrees = numel(trees);
 
+% Generate one function per tree
+fid = fopen('trees.c', 'w');
 for kk = 1:ntrees
     genCode(Mdl, kk, fid);
 end
 
-fprintf(fid, 'double tree_class(double * X)\n');
+% Majority vote
+fprintf(fid, 'double tree_class(const double * restrict X)\n');
 fprintf(fid, '{\n');
 fprintf(fid, 'double sum = 0;\n');
-
 for kk = 1:ntrees
     fprintf(fid, 'sum += tree%d(X);\n', kk);
 end
-
 fprintf(fid, 'return sum / %.1f;\n', ntrees);
 fprintf(fid, '}\n');
 
@@ -29,7 +28,7 @@ fclose(fid);
 
 mex -O cMdl.c
 
-fprintf('You can now classify with C = cMdl(F) where F contains one column per pixel\n');
+fprintf('You can now classify with C = cMdl(F) where F contains one column of features per pixel\n');
 
 end
 
@@ -46,7 +45,7 @@ tree = Mdl.Trees{n};
 % tree.NodeClass % '1' or '2' cell
 
 
-fprintf(fid, 'int tree%d(double * x)\n', n);
+fprintf(fid, 'int tree%d(const double * restrict x)\n', n);
 fprintf(fid, '{\n');
 
 for kk = 1:tree.NumNodes    
@@ -61,7 +60,7 @@ for kk = 1:tree.NumNodes
     child = tree.Children(kk, :);
     cut = tree.CutPoint(kk);
 if(isBranch)
-    fprintf(fid, 'if( %s < %f ){ goto node%d; } else { goto node%d; }\n', pred, cut, child(1), child(2));
+    fprintf(fid, 'if( %s < %.15f ){ goto node%d; } else { goto node%d; }\n', pred, cut, child(1), child(2));
 else
     fprintf(fid, 'return(%d);\n', class);
 end

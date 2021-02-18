@@ -17,7 +17,7 @@ Training = Training(pos, :);
 Labels = double(L(pos));
 
 %% Configure and create the classifier
-nTrees = 50;
+nTrees = 51;
 Mdl = TreeBagger(nTrees, Training, Labels, 'Method', 'classification');
 fprintf('Saving classifier to %s\n', outname);
 save(outname, 'Mdl')

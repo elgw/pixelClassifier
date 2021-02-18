@@ -1,5 +1,9 @@
 % Example usage of the pixel classification pipeline
 
+% make sure that we are not using an old model
+% the new binary will be create by model_to_c() later on
+delete('cMdl.mexa64')
+
 %% Input 
 % Image to be classified
 % If 3D, a max projection will be used.
@@ -16,6 +20,7 @@ MdlName = 'Mdl_ieg728_20x.mat';
 % Generate the model
 fprintf('Generating the classifier\n')
 px_gen_classifier(training_image, training_labels, MdlName);
+model_to_c(MdlName)
 
 %% Classify an image:
 % The training image or some other image.
