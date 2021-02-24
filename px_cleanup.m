@@ -1,4 +1,5 @@
-function px_cleanup(classname, imagename)
+function L = px_cleanup(classname, imagename)
+
 % Clean up a segmentation/ make it ready for nuclei statistics
 outname_rgb = sprintf('%s.clean_rgb.png', imagename);
 outname_binary = sprintf('%s.clean_binary.png', imagename);
@@ -6,6 +7,8 @@ outname_binary = sprintf('%s.clean_binary.png', imagename);
 I = df_readTif(imagename);
 I = max(I, [], 3);
 I = double(I);
+I = I/max(I(:));
+
 class = imread(classname);
 
 %% Clean up classification
@@ -13,7 +16,13 @@ nuclei = (class == 2);
 nuclei2 = bwpropfilt(nuclei, 'Area', [81, 1000*1000]);
 
 % TODO: Only accept holes up to a certain size
+if 0
+fprintf('Filling holes')
 nuclei3 = imfill(nuclei2, 'holes');
+else
+fprintf('Not filling holes')
+nuclei3 = nuclei2;
+end
 
 d = bwdist(~nuclei3);
 d = imdilate(d, strel('disk', 5));

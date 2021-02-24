@@ -1,13 +1,19 @@
-function px_gen_classifier(image, labels, outname)
+function px_gen_classifier(image, labels, outname, F)
 % Pixel classification of a 2D image
 % with a label image where 0=unlabelled
 
-I = df_readTif(image);
-L = imread(labels);
+if ischar(image)
+    I = df_readTif(image);
+    L = imread(labels);
+else
+    L = labels;
+end
 
 %% Calculate Features
-[F, Fnames] = px_features_2d(I);
-%volumeSlide(F)
+if ~isvarname('F')
+    [F, Fnames] = px_features_2d(I);
+    %volumeSlide(F)
+end
 
 %% Extract the training data from the image
 pos = find(L > 0);

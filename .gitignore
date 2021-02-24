@@ -6,3 +6,4 @@ cMdl
 *.o
 a.out
 trees.c
+*.tif

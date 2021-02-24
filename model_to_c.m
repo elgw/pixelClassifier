@@ -1,6 +1,10 @@
 function model_to_c(MdlFile)
-MdlFile = 'Mdl_ieg728_20x.mat';
-load(MdlFile)
+if(nargin == 0)
+    warning('Called witout input arguments')
+    MdlFile = 'Mdl_ieg728_20x.mat';    
+end
+
+load(MdlFile);
 
 % Purpose:
 % Create c-code from a TreeBagger model
@@ -60,7 +64,9 @@ for kk = 1:tree.NumNodes
     child = tree.Children(kk, :);
     cut = tree.CutPoint(kk);
 if(isBranch)
-    fprintf(fid, 'if( %s < %.15f ){ goto node%d; } else { goto node%d; }\n', pred, cut, child(1), child(2));
+    fprintf(fid, ...
+        'if( %s < %.15f ){ goto node%d; } else { goto node%d; }\n', ...
+        pred, cut, child(1), child(2));
 else
     fprintf(fid, 'return(%d);\n', class);
 end
