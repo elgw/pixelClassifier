@@ -1,19 +1,18 @@
 function model_to_c(MdlFile)
-if(nargin == 0)
-    warning('Called witout input arguments')
-    MdlFile = 'Mdl_ieg728_20x.mat';    
-end
-
-load(MdlFile);
-
 % Purpose:
 % Create c-code from a TreeBagger model
+% Input argument:
+% MdlFile : a .mat file that contains Mdl : a TreeBagger model
 
+load(MdlFile, 'Mdl');
+mdlFolder = fileparts(MdlFile);
+
+cfile = [mdlFolder filesep() 'trees.c'];
 trees = Mdl.Trees;
 ntrees = numel(trees);
 
 % Generate one function per tree
-fid = fopen('trees.c', 'w');
+fid = fopen(cfile, 'w');
 for kk = 1:ntrees
     genCode(Mdl, kk, fid);
 end
@@ -29,10 +28,19 @@ fprintf(fid, 'return sum / %.1f;\n', ntrees);
 fprintf(fid, '}\n');
 
 fclose(fid);
+%keyboard
 
-mex -O cMdl.c
+% copy cMdl to classifier folder
+p = mfilename('fullpath');
+p = fileparts(p);
 
-fprintf('You can now classify with C = cMdl(F) where F contains one column of features per pixel\n');
+targetFile = [mdlFolder filesep() 'cMdl.c'];
+copyfile([p filesep() 'cMdl.c'], targetFile);
+
+mex('-O', targetFile, '-output', [mdlFolder filesep() 'cMdl'])
+
+fprintf('If you do addpath(%s), ', mdlFolder)
+fprintf('you can classify with C = cMdl(F) where F contains one column of features per pixel\n');
 
 end
 

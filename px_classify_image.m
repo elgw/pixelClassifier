@@ -4,15 +4,37 @@ function px_classify_image(classifier, imagename)
 % imagename: the file name of the image to be classified
 % classifier: the file name (.mat) containing the classifier
 
-if nargin == 0
-    close all
-imagename = '/srv/backup/jobb/Tissue-smFISH/ieg728/20x/max_dapi_001.tiff';
-classifier = 'classifier_001.mat';
-dbstop error 
+if numel(which('cMdl')) ~= 0
+	error('Looks like a cMdl function already exist in your path')
 end
 
+if nargin == 0
+    imagename = '/srv/backup/jobb/Tissue-smFISH/ieg728/20x/max_dw_dapi_001.tiff';
+    [imagename, folder] = uigetfile(imagename, 'Select image to classify');
+    if isequal(imagename, 0)
+        exit;
+    end
+    imagename = [folder filesep() imagename];
+    
+    classifier = 'classifier.mat';
+    [classifier, cfolder] = uigetfile(classifier, 'Select classifier (.mat)');
+    if isequal(classifier, 0)
+        exit;
+    end
+        
+    classifier = [cfolder filesep() classifier];
+        
+    dbstop error 
+end
+
+mexfun = [];
 load(classifier, 'Mdl');
 assert(isvarname('Mdl'));
+
+here = pwd();
+cd(fileparts(classifier));
+mexfun = @cMdl;
+cd(here);
 
 I = df_readTif(imagename);
 
@@ -26,13 +48,14 @@ figure, imagesc(C), axis image, drawnow
 fprintf('\n');
 for kk = 1:numel(tiles)
     progressbar(kk, numel(tiles));
-    C = classify_tile(Mdl, tiles{kk}, I, C);
+    C = classify_tile(Mdl, mexfun, tiles{kk}, I, C);
     imagesc(C)
     drawnow
 end
 
-imwrite(C, sprintf('%s.classes.png', imagename));
-
+classname = sprintf('%s.classes.png', imagename);
+imwrite(C, classname);
+px_cleanup(classname, imagename);
 end
 
 function T = tiles_generate_tiling(sz, ts, ol)
@@ -71,10 +94,10 @@ assert( size(C,1) == numel(tile.x0(1):tile.x0(2)));
 assert( size(C,2) == numel(tile.y0(1):tile.y0(2)));
 end
 
-function C = classify_tile(Mdl, tile, I, C)
+function C = classify_tile(Mdl, mexfun, tile, I, C)
 % Classify a tile and put the result back in C
 im = I(tile.x(1):tile.x(2), tile.y(1):tile.y(2));
-c = px_classify_region(Mdl, im);
+c = px_classify_region(Mdl, mexfun, im);
 c = tile_crop(tile, c);
 C(tile.x0(1):tile.x0(2), tile.y0(1):tile.y0(2)) = c;
 end
