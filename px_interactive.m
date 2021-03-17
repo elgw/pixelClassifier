@@ -2,7 +2,10 @@ function px_interactive()
 
 close all
 
+% This is just used indicate what folder to open from
 image = '/srv/backup/jobb/Tissue-smFISH/ieg728/20x/max_dw_dapi_001.tiff';
+image = '/srv/backup/jobb/MYC FISH FFPE/iXZ060_20210203_004_25x/correct_dw/dw_dapi_001.tiff';
+
 [image, path] = uigetfile(image);
 if isequal(image, 0)
     fprintf('No file selected, quitting\n');
@@ -43,7 +46,10 @@ img = imagesc(I, 'Parent', ax); axis image, colormap gray
 % Todo: implement wait feature in climSlider to set
 % the limits for future visualizations
 slider = climSlider(img, 'wait');
+disp('Adjust the contrast, then type dbcont')
 keyboard
+
+clims = get(gca, 'Clim')
 
 disp('Waiting for background labels')
 while 1
@@ -59,7 +65,7 @@ while 1
     L(bw) = 1;
     delete(sel)
     
-    updateLabelImage(img, I, L);
+    updateLabelImage(img, I, L, clims);
     
 end
 disp('done')
@@ -92,7 +98,7 @@ cd(outfolder)
 mexfun = @cMdl;
 cd(here);
 C = mexfun(Q');
-fprintf('Done');
+fprintf('Done\n');
 C = reshape(C, size(I));
 
 %figure, imagesc(C)
@@ -108,8 +114,11 @@ px_cleanup(outclasses, outimage);
 
 end
 
-function updateLabelImage(img, I, L)
+function updateLabelImage(img, I, L, clims)
 % Draw image colored by labels
+keyboard
+% TODO: use clims
+
 H = L/3;
 S = .5*double(L>0);
 V = I/max(I(:));
