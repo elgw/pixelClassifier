@@ -3,8 +3,11 @@ function px_interactive()
 close all
 
 % This is just used indicate what folder to open from
-image = '/srv/backup/jobb/Tissue-smFISH/ieg728/20x/max_dw_dapi_001.tiff';
-image = '/srv/backup/jobb/MYC FISH FFPE/iXZ060_20210203_004_25x/correct_dw/dw_dapi_001.tiff';
+image = '/srv/backup/jobb/Tissue-smFISH/ieg728/20x/dw_dapi_001.tiff';
+image = '/srv/backup/jobb/Tissue-smFISH/ieg728/60x/dapi_25_iter/dw_dapi_001.tiff';
+image = '/srv/backup/jobb/Tissue-smFISH/ieg728/60x/dw_dapi_001.tiff'; % 50 iter
+
+%image = '/srv/backup/jobb/MYC FISH FFPE/iXZ060_20210203_004_25x/correct_dw/dw_dapi_001.tiff';
 
 [image, path] = uigetfile(image);
 if isequal(image, 0)
@@ -16,12 +19,17 @@ image = [path filesep() image];
 outfolder = uigetdir([], 'Select a folder to store the classifier');
 if isequal(outfolder, 0)
     fprintf('No output folder selected, quitting\n');
+    return;
 end
 
 %% Load the image
 fprintf('Loading image ...\n');
-I = df_readTif(image);
+[I, scaling] = df_readTif(image);
 I = double(I);
+if scaling ~= -1
+    fprintf('Dividing by scale %f\n', scaling);
+    I = I./scaling;    
+end
 I = max(I, [], 3);
 
 %% TODO:
@@ -49,7 +57,7 @@ slider = climSlider(img, 'wait');
 disp('Adjust the contrast, then type dbcont')
 keyboard
 
-clims = get(gca, 'Clim')
+clims = get(ax, 'Clim');
 
 disp('Waiting for background labels')
 while 1
@@ -63,10 +71,8 @@ while 1
     %L(idx) = 1;
     bw = createMask(sel);
     L(bw) = 1;
-    delete(sel)
-    
-    updateLabelImage(img, I, L, clims);
-    
+    delete(sel)   
+    updateLabelImage(img, I, L, clims);    
 end
 disp('done')
 
@@ -82,9 +88,14 @@ while 1
     bw = createMask(sel);
     L(bw) = 2;
 	delete(sel)
-    updateLabelImage(img, I, L);
+    updateLabelImage(img, I, L, clims);
 end
 disp('done')
+
+labelfile = [outfolder filesep() 'labels.png'];
+fprintf('Saving labels to %s\n', labelfile);
+imwrite(uint8(L), labelfile);
+keyboard
 
 px_gen_classifier(I, L, [outfolder filesep() 'classifier'], F)
 
@@ -116,17 +127,24 @@ end
 
 function updateLabelImage(img, I, L, clims)
 % Draw image colored by labels
-keyboard
-% TODO: use clims
 
 H = L/3;
 S = .5*double(L>0);
-V = I/max(I(:));
+
+V = I; 
+V = V - clims(1); 
+V(V<0) = 0;
+V = V/(clims(2)-clims(1));
+V(V>1) = 1;
+
+% V = I/max(I(:));
+
 V(L>0) = .5 + V(L>0);
 V(V>1) = 1;
 
 
 set(img, 'CData', hsv2rgb(H, S, V))
+
 %imagesc(ax, hsv2rgb(H, S, V));
 %axis image
 end

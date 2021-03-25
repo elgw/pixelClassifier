@@ -1,4 +1,4 @@
-function px_classify_image(classifier, imagename)
+function varargout = px_classify_image(classifier, imagename)
 % Classify the pixels of an image using a classifier created by
 % px_gen_classifier.
 % imagename: the file name of the image to be classified
@@ -27,6 +27,10 @@ if nargin == 0
     dbstop error 
 end
 
+if isdir(classifier)
+    classifier = [classifier filesep() 'classifier.mat'];
+end
+
 mexfun = [];
 load(classifier, 'Mdl');
 assert(isvarname('Mdl'));
@@ -36,9 +40,12 @@ cd(fileparts(classifier));
 mexfun = @cMdl;
 cd(here);
 
-I = df_readTif(imagename);
-
-I = max(I, [], 3);
+if ischar(imagename)
+    I = df_readTif(imagename);
+    I = max(I, [], 3);
+else
+    I = imagename;
+end
 
 tilesize = 512;
 overlap = 52;
@@ -53,9 +60,13 @@ for kk = 1:numel(tiles)
     drawnow
 end
 
-classname = sprintf('%s.classes.png', imagename);
-imwrite(C, classname);
-px_cleanup(classname, imagename);
+if nargout > 0 
+    varargout{1} = C;
+else
+    classname = sprintf('%s.classes.png', imagename);
+    imwrite(C, classname);
+    px_cleanup(classname, imagename);
+end
 end
 
 function T = tiles_generate_tiling(sz, ts, ol)
