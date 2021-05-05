@@ -1,8 +1,13 @@
 function varargout = px_classify_image(classifier, imagename)
-% Classify the pixels of an image using a classifier created by
+%% function varargout = px_classify_image(classifier, imagename)
+% Classify the pixels of an image <imagename> using <classifier> created by
 % px_gen_classifier.
-% imagename: the file name of the image to be classified
-% classifier: the file name (.mat) containing the classifier
+% INPUT:
+% <imagename> the file name of the image to be classified
+% <classifier> the file name (.mat) containing the classifier
+% OUTPUT:
+% <imagename>.classes.png
+% also calls px_cleanup() on the image.
 
 if numel(which('cMdl')) ~= 0
 	error('Looks like a cMdl function already exist in your path')

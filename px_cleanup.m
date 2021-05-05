@@ -1,6 +1,14 @@
 function L = px_cleanup(classname, imagename)
+%% function L = px_cleanup(classname, imagename)
+% Cleans up a segmentation/makes it ready for nuclei statistics
+%
+% READS the binary image <classname> and the underlying
+% gray scale image <imagename>
+%
+% WRITES to 
+% <imagename>.clean_rgb.png and 
+% <imagename>.clean_binary.png
 
-% Clean up a segmentation/ make it ready for nuclei statistics
 outname_rgb = sprintf('%s.clean_rgb.png', imagename);
 outname_binary = sprintf('%s.clean_binary.png', imagename);
 

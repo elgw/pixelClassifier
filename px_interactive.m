@@ -6,8 +6,12 @@ close all
 image = '/srv/backup/jobb/Tissue-smFISH/ieg728/20x/dw_dapi_001.tiff';
 image = '/srv/backup/jobb/Tissue-smFISH/ieg728/60x/dapi_25_iter/dw_dapi_001.tiff';
 image = '/srv/backup/jobb/Tissue-smFISH/ieg728/60x/dw_dapi_001.tiff'; % 50 iter
-
+image = '/srv/backup/jobb/Tissue-smFISH/C1/iEG735_C1core_MULTIcy5_z0.3_20x_210329_003/dw_dapi_001.tiff'
 %image = '/srv/backup/jobb/MYC FISH FFPE/iXZ060_20210203_004_25x/correct_dw/dw_dapi_001.tiff';
+image = '/srv/backup/jobb/Tissue-smFISH/C1/iEG735_C1core_MULTIcy5_z0.3_20x_210329_003/dw_dapi_001.tiff'
+image = '/srv/backup/jobb/Tissue-smFISH/C1/iEG735_C1core_16BIT_MULTIcy5_z0.3_20x_210330_003/dw_dapi_001.tiff'
+
+image = '/srv/backup/jobb/upload1/humanTissue_ffTonsil_20x_merged/set1/dw/1-1_dapi.tif';
 
 [image, path] = uigetfile(image);
 if isequal(image, 0)
@@ -20,6 +24,10 @@ outfolder = uigetdir([], 'Select a folder to store the classifier');
 if isequal(outfolder, 0)
     fprintf('No output folder selected, quitting\n');
     return;
+end
+
+if ~isdir(outfolder)
+    mkdir(outfolder)
 end
 
 %% Load the image
@@ -121,6 +129,8 @@ df_writeTif(uint16(I), outimage);
 outclasses = [outfolder filesep() 'training_classes.tif'];
 df_writeTif(uint16(C), outclasses);
 
+%% Clean up the mask with some default parameters
+% then writes new images based in the 
 px_cleanup(outclasses, outimage);
 
 end

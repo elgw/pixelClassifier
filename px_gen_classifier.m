@@ -22,6 +22,12 @@ Training = reshape(F, [size(F,1)*size(F,2), size(F,3)]);
 Training = Training(pos, :);
 Labels = double(L(pos));
 
+% Save training data to disk
+doutname = [outname 'data'];
+save(doutname, 'Training', 'Labels')
+
+keyboard
+
 %% Configure and create the classifier
 nTrees = 51;
 Mdl = TreeBagger(nTrees, Training, Labels, 'Method', 'classification');
