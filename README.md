@@ -1,5 +1,7 @@
 # pixel classification
 
+![demo](demo.png)
+
 This repo contains code to generate a make a binary classification decision
 for pixels in 2D images.  Eventually C-code is generated for the classifier
 and it is compiled into a mex file. The compiled classifier is about 50x
@@ -103,4 +105,4 @@ imwrite(C, [outFolder 'classification.png'])
 <a name="references" />
 
 # References
- -[Ilastic](https://www.ilastik.org/) A very user friendly program for 2D and 3D pixel classification. This is probably what you really want.
+ - [Ilastic](https://www.ilastik.org/) A very user friendly program for 2D and 3D pixel classification. This is probably what you really want.
