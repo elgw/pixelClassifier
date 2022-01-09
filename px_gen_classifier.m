@@ -1,16 +1,22 @@
-function px_gen_classifier(image, labels, outname, F)
+function px_gen_classifier(image, labels, outfolder, F)
+% function px_gen_classifier(image, labels, outname, F)
+% either image and labels are files that can be read by imread
+% or they are matrices
 % Pixel classification of a 2D image
 % with a label image where 0=unlabelled
+% outname will be the name of the .mat file with the classifier
+% 'F' is optional of some specific features are to be used
 
 if ischar(image)
     I = df_readTif(image);
     L = imread(labels);
 else
     L = labels;
+    I = image;
 end
 
 %% Calculate Features
-if ~isvarname('F')
+if ~exist('F', 'var')
     [F, Fnames] = px_features_2d(I);
     %volumeSlide(F)
 end
@@ -23,21 +29,19 @@ Training = Training(pos, :);
 Labels = double(L(pos));
 
 % Save training data to disk
-doutname = [outname 'data'];
+doutname = [outfolder 'data.mat'];
 save(doutname, 'Training', 'Labels')
 
-keyboard
 
 %% Configure and create the classifier
 nTrees = 51;
 Mdl = TreeBagger(nTrees, Training, Labels, 'Method', 'classification');
-fprintf('Saving classifier to %s\n', outname);
-save(outname, 'Mdl')
+fprintf('Saving classifier to %s\n', outfolder);
+save([outfolder 'Mdl.mat'], 'Mdl')
 
 % Classify the training data to see that all is fine
 classification = Mdl.predict(Training);
 class = cellfun(@(x) str2num(x), classification);
-
 
 fprintf('%.0f / %.0f training pixels classified correctly\n', sum(Labels==class), numel(Labels));
 end

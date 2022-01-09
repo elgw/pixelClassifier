@@ -1,18 +1,53 @@
-# A pixel classifier
+# pixel classification
 
-Inspired by Ilastic, this repo contains code to generate image features and then
-train and classify a 2D image in matlab. It acutally moves a little forward and
-exports the classifier as C-code and compiles it into a mex file. The c-based
-classifier is about 50x faster (single core) than the one built in to MATLAB.
+This repo contains code to generate a make a binary classification decision
+for pixels in 2D images.  Eventually classifier is exported as C-code and
+compiles it into a mex file. The c-based classifier is about 50x faster
+(single core) than the one built in to MATLAB.
 
+Here is how it is used:
+1. Choose a training image.
+2. Create a copy of the training image and annotate it
+   in your favorite drawing program. Use red and green to indicate
+   background and objects.
+3. Extract features from the labeled pixels in the training image
+4. Build a random forest to classify the pixels.
+5. Export the classifier as C-code.
+6. Compile the classifier.
+7. Use the classifier.
+
+## Contents
+
+ - [Pixel Features](#features)
+ - [Classifier](#classifier)
+ - [To Do](#todo)
+ - [References](#references)
+
+
+<a name="features" />
+
+## Pixel Features
+Just like Ilastic, features are extracted at multiple scales. The built
+in features are:
+ - Gaussian (1)
+ - Laplacian of Gaussians (1)
+ - Gradient magnitude (1)
+ - Structure tensor eigenvalues (2)
+ - Hessian eigenvalues (2)
+
+<a name="classifier" />
+
+## Classifier
+
+Uses the class `TreeBagger` in MATLAB for classification. There is also `templateTree`/`fitensebmle`, see [this comparison](https://se.mathworks.com/help/stats/ensemble-algorithms.html#bsxabwd).
+
+
+<a name="todo" />
+
+# TODO
 Desirable features:
- - Parallelized classifier
- - A suggested way to create the masks (why not gimp?)
+ - [ ] Parallelized classifier
  - [x] Translate classifier directly to c-code?
-
-## Implementation notes:
- - Uses the class `TreeBagger` in MATLAB for classification. There is also `templateTree`/`fitensebmle`, see [this comparison](https://se.mathworks.com/help/stats/ensemble-algorithms.html#bsxabwd).
-
 
 ## Files:
  - `px_interactive` -- interactively mark two classes in an image and then classify it.
@@ -22,3 +57,8 @@ Desirable features:
  - `mode_to_c.m` -- convert a TreeBagger model into a compiled mex function `cMdl`
 
  - `createComposite` -- merge channels and segmentation result.
+
+<a name="references" />
+
+# References
+ -[Ilastic](https://www.ilastik.org/) A very user friendly program for 2D and 3D pixel classification. This is probably what you really want.

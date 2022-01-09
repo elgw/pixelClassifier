@@ -52,7 +52,7 @@ else
     I = imagename;
 end
 
-tilesize = 512;
+tilesize = 2048;
 overlap = 52;
 tiles = tiles_generate_tiling(size(I), tilesize, overlap);
 C = 0*I;
@@ -75,8 +75,10 @@ end
 end
 
 function T = tiles_generate_tiling(sz, ts, ol)
+
 assert(numel(sz) == 2);
 ntiles = ceil(sz/ts);
+ntiles = max(2, ntiles);
 ex = round(linspace(1, sz(1)+1, ntiles(1)));
 ey = round(linspace(1, sz(2)+1, ntiles(2)));
 T = {};
